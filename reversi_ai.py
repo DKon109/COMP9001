@@ -43,20 +43,26 @@ def valid_move(board, row, col, player):
 
 def place_move(board, row, col, player):
     board[row][col] = player
-    directions = [(0, -1), (-1, -1), (-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1)] 
-    for (dir_r, dir_c) in directions:
-        reverse = [] 
-        (next_r, next_c) = (row + dir_r, col + dir_c)
-        while (0 <= next_r < BOARD_SIZE and 0 <= next_c < BOARD_SIZE):
-            if board[next_r][next_c] != player:
-                reverse.append((next_r,next_c))
-            elif board[next_r][next_c] == player:
+    directions = [(0, -1), (-1, -1), (-1, 0), (-1, 1),
+                  (0, 1), (1, 1), (1, 0), (1, -1)]
+    opponent = BLACK if player == WHITE else WHITE
+
+    for dir_r, dir_c in directions:
+        reverse = []
+        next_r, next_c = row + dir_r, col + dir_c
+
+        while 0 <= next_r < BOARD_SIZE and 0 <= next_c < BOARD_SIZE:
+            current = board[next_r][next_c]
+            if current == opponent:
+                reverse.append((next_r, next_c))
+            elif current == player:
                 for re_r, re_c in reverse:
                     board[re_r][re_c] = player
                 break
             else:
                 break
-            (next_r, next_c) = (next_r + dir_r, next_c + dir_c)
+            next_r += dir_r
+            next_c += dir_c
     return board
 
 
@@ -119,10 +125,7 @@ def othello():
         else:
             last_player_pass = False
 
-        print(f"Valid moves for {player}: ", end="")
-        print([f"{col}, {row}" for row, col in valid_moves])
-        print_board(board)
-
+        
         if player == human_player:
             while True:
                 try:
@@ -136,7 +139,7 @@ def othello():
                     else:
                         print("Invalid move. Try again.")
                 except ValueError:
-                    print("Invalid input. Use format: col row")
+                    print("Invalid input")
         else:
             row, col = ai_select_move(board, ai_player)
             print(f"AI ({ai_player}) placed at col {col}, row {row}")
